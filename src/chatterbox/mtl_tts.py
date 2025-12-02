@@ -1,22 +1,22 @@
+import os
 from dataclasses import dataclass
 from pathlib import Path
-import os
+from typing import Optional
 
 import librosa
-import torch
 import perth
+import torch
 import torch.nn.functional as F
-from safetensors.torch import load_file as load_safetensors
 from huggingface_hub import snapshot_download
+from safetensors.torch import load_file as load_safetensors
 
-from .models.t3 import T3
-from .models.t3.modules.t3_config import T3Config
-from .models.s3tokenizer import S3_SR, drop_invalid_tokens
 from .models.s3gen import S3GEN_SR, S3Gen
+from .models.s3tokenizer import S3_SR, drop_invalid_tokens
+from .models.t3 import T3
+from .models.t3.modules.cond_enc import T3Cond
+from .models.t3.modules.t3_config import T3Config
 from .models.tokenizers import MTLTokenizer
 from .models.voice_encoder import VoiceEncoder
-from .models.t3.modules.cond_enc import T3Cond
-
 
 REPO_ID = "ResembleAI/chatterbox"
 
@@ -108,8 +108,8 @@ class Conditionals:
         - embedding
     """
 
-    t3: T3Cond
-    gen: dict
+    t3: Optional[T3Cond]
+    gen: Optional[dict]
 
     def to(self, device):
         self.t3 = self.t3.to(device=device)
@@ -139,7 +139,7 @@ class ChatterboxMultilingualTTS:
         ve: VoiceEncoder,
         tokenizer: MTLTokenizer,
         device: str,
-        conds: Conditionals = None,
+        conds: Conditionals,
     ):
         self.sr = S3GEN_SR  # sample rate of synthesized audio
         self.t3 = t3
@@ -165,25 +165,23 @@ class ChatterboxMultilingualTTS:
 
         t3 = T3(T3Config.multilingual())
         t3_state = load_safetensors(ckpt_dir / "t3_mtl23ls_v2.safetensors")
-        if "model" in t3_state.keys():
-            t3_state = t3_state["model"][0]
         t3.load_state_dict(t3_state)
         t3.to(device).eval()
 
         s3gen = S3Gen()
-        s3gen.load_state_dict(torch.load(ckpt_dir / "s3gen.pt", weights_only=True))
+        s3gen.load_state_dict(torch.load(ckpt_dir / "s3gen.pt", weights_only=True, map_location=torch.device('cpu')))
         s3gen.to(device).eval()
 
         tokenizer = MTLTokenizer(str(ckpt_dir / "grapheme_mtl_merged_expanded_v1.json"))
 
-        conds = None
+        conds = Conditionals(t3=None, gen=None)
         if (builtin_voice := ckpt_dir / "conds.pt").exists():
             conds = Conditionals.load(builtin_voice).to(device)
 
         return cls(t3, s3gen, ve, tokenizer, device, conds=conds)
 
     @classmethod
-    def from_pretrained(cls, device: torch.device) -> "ChatterboxMultilingualTTS":
+    def from_pretrained(cls, device: str) -> "ChatterboxMultilingualTTS":
         ckpt_dir = Path(
             snapshot_download(
                 repo_id=REPO_ID,
@@ -276,7 +274,7 @@ class ChatterboxMultilingualTTS:
         # Norm and tokenize text
         text = punc_norm(text)
         text_tokens = self.tokenizer.text_to_tokens(
-            text, language_id=language_id.lower() if language_id else None
+            text, language_id=language_id.lower() if language_id else "en"
         ).to(self.device)
         text_tokens = torch.cat(
             [text_tokens, text_tokens], dim=0

@@ -18,6 +18,7 @@ dependencies = [
     "diffusers>=0.35.2",
     "resemble-perth>=1.0.1",
     "safetensors>=0.7.0",
+    "torchcodec>=0.8.1",
 ]
 
 [project.urls]

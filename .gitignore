@@ -44,5 +44,6 @@ syn_out/
 checkpoints/
 .gradio
 
-# Ignore generated sample .wav files
+# Ignore sample .wav/mp3 files
 **/*.wav
+**/*.mp3
