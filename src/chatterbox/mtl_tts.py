@@ -22,29 +22,8 @@ REPO_ID = "ResembleAI/chatterbox"
 
 # Supported languages for the multilingual model
 SUPPORTED_LANGUAGES = {
-    "ar": "Arabic",
-    "da": "Danish",
-    "de": "German",
-    "el": "Greek",
     "en": "English",
-    "es": "Spanish",
-    "fi": "Finnish",
-    "fr": "French",
-    "he": "Hebrew",
-    "hi": "Hindi",
-    "it": "Italian",
-    "ja": "Japanese",
-    "ko": "Korean",
-    "ms": "Malay",
-    "nl": "Dutch",
-    "no": "Norwegian",
-    "pl": "Polish",
-    "pt": "Portuguese",
-    "ru": "Russian",
     "sv": "Swedish",
-    "sw": "Swahili",
-    "tr": "Turkish",
-    "zh": "Chinese",
 }
 
 
@@ -169,7 +148,13 @@ class ChatterboxMultilingualTTS:
         t3.to(device).eval()
 
         s3gen = S3Gen()
-        s3gen.load_state_dict(torch.load(ckpt_dir / "s3gen.pt", weights_only=True, map_location=torch.device('cpu')))
+        s3gen.load_state_dict(
+            torch.load(
+                ckpt_dir / "s3gen.pt",
+                weights_only=True,
+                map_location=torch.device("cpu"),
+            )
+        )
         s3gen.to(device).eval()
 
         tokenizer = MTLTokenizer(str(ckpt_dir / "grapheme_mtl_merged_expanded_v1.json"))

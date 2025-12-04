@@ -1,12 +1,12 @@
 [project]
-name = "chatterbox-tts"
-version = "0.1.4"
-description = "Chatterbox: Open Source TTS and Voice Conversion by Resemble AI"
+name = "chatterbox-sv"
+version = "0.0.1"
+description = "Chatterbox-tts fork focusing on Swedish and English text-to-speech."
 readme = "README.md"
 requires-python = ">=3.13"
 license = {file = "LICENSE"}
 authors = [
-    {name = "resemble-ai", email = "engineering@resemble.ai"}
+    {name = "antonfogelstrom", email = "antonfogelstrom@gmail.com"}
 ]
 dependencies = [
     "numpy>=2.3.5",
@@ -22,8 +22,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/resemble-ai/chatterbox"
-Repository = "https://github.com/resemble-ai/chatterbox"
+Homepage = "https://github.com/antonfogelstrom/chatterbox-sv"
+Repository = "https://github.com/antonfogelstrom/chatterbox-sv"
 
 [build-system]
 requires = ["setuptools>=61.0"]
