@@ -19,8 +19,9 @@ print(f"Using device: {device}")
 # ta.save("test-1.wav", wav, model.sr)
 
 multilingual_model = ChatterboxMultilingualTTS.from_pretrained(device="cpu")
-text = "Idag skiner solen över Jönköping och temperaturen ligger på tjugotvå grader."
-wav = multilingual_model.generate(text, language_id="sv", audio_prompt_path="outputfile.mp3")
+text = "Idag skiner solen över Jönköping och temperaturen ligger på tjugotvå grader"
+# wav = multilingual_model.generate(text, language_id="sv", audio_prompt_path="outputfile.mp3")
+wav = multilingual_model.generate(text, language_id="sv")
 ta.save("test-2.wav", wav, multilingual_model.sr)
 
 
